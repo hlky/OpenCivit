@@ -10,3 +10,5 @@ Sourcemaps do not belong in production.
 ## Notes
 
 Some server-side things are missing, see `src/utils/metadata/*`
+
+Original `node_modules` uploaded, needs versions extracting for `package.json`
