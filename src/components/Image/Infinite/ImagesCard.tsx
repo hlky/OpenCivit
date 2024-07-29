@@ -19,7 +19,6 @@ import { RoutedDialogLink } from '~/components/Dialog/RoutedDialogProvider';
 import { EdgeMedia } from '~/components/EdgeMedia/EdgeMedia';
 import { useImagesContext } from '~/components/Image/Providers/ImagesProvider';
 import { MediaHash } from '~/components/ImageHash/ImageHash';
-import { ImageMetaPopover } from '~/components/ImageMeta/ImageMeta';
 import { MasonryCard } from '~/components/MasonryGrid/MasonryCard';
 import { Reactions } from '~/components/Reaction/Reactions';
 import { VotableTags } from '~/components/VotableTags/VotableTags';
@@ -38,8 +37,8 @@ import { ImageContextMenu } from '~/components/Image/ContextMenu/ImageContextMen
 import { getIsPublicBrowsingLevel } from '~/shared/constants/browsingLevel.constants';
 import { useCardStyles } from '~/components/Cards/Cards.styles';
 import { ImageMetaPopover2 } from '~/components/Image/Meta/ImageMetaPopover';
-import { VideoMetadata } from '~/server/schema/media.schema';
-import { shouldAnimateByDefault } from '~/components/EdgeMedia/EdgeMedia.util';
+import { getSkipValue, shouldAnimateByDefault } from '~/components/EdgeMedia/EdgeMedia.util';
+import { useCurrentUser } from '~/hooks/useCurrentUser';
 
 export function ImagesCard({ data, height }: { data: ImagesInfiniteModel; height: number }) {
   const { ref, inView } = useInView({ rootMargin: '200% 0px' });
@@ -47,6 +46,7 @@ export function ImagesCard({ data, height }: { data: ImagesInfiniteModel; height
   const { classes: sharedClasses } = useCardStyles({ aspectRatio: 1 });
   const { images } = useImagesContext();
   const features = useFeatureFlags();
+  const currentUser = useCurrentUser();
 
   const image = useImageStore(data);
 
@@ -61,7 +61,7 @@ export function ImagesCard({ data, height }: { data: ImagesInfiniteModel; height
 
   const showVotes = !!tags?.length && isScanned;
 
-  const onSite = image.meta && 'civitaiResources' in image.meta;
+  const onSite = image.onSite;
   const notPublished = image.publishedAt === null;
   const scheduled = image.publishedAt && new Date(image.publishedAt) > new Date();
 
@@ -70,6 +70,11 @@ export function ImagesCard({ data, height }: { data: ImagesInfiniteModel; height
   ) as (typeof image.user.cosmetics)[number] & {
     data?: { lights?: number; upgradedLights?: number };
   };
+
+  const shouldAnimate = shouldAnimateByDefault({
+    ...image,
+    forceDisabled: !currentUser?.autoplayGifs,
+  });
 
   return (
     <HolidayFrame {...cardDecoration}>
@@ -114,7 +119,7 @@ export function ImagesCard({ data, height }: { data: ImagesInfiniteModel; height
                         {safe && (
                           <Stack spacing="xs" ml="auto" sx={{ pointerEvents: 'auto' }}>
                             {!isBlocked && <ImageContextMenu image={image} />}
-                            {features.imageGeneration && image.meta && !image.hideMeta && (
+                            {features.imageGeneration && image.hasMeta && (
                               <HoverActionButton
                                 label="Remix"
                                 size={30}
@@ -155,14 +160,9 @@ export function ImagesCard({ data, height }: { data: ImagesInfiniteModel; height
                           src={image.url}
                           className={cx(sharedClasses.image, { [classes.blocked]: isBlocked })}
                           name={image.name ?? image.id.toString()}
-                          alt={
-                            image.meta
-                              ? truncate(image.meta.prompt, {
-                                  length: constants.altTruncateLength,
-                                })
-                              : image.name ?? undefined
-                          }
-                          anim={shouldAnimateByDefault(image)}
+                          alt={image.name ?? undefined}
+                          anim={shouldAnimate}
+                          skip={getSkipValue(image)}
                           type={image.type}
                           width={450}
                           placeholder="empty"
@@ -209,8 +209,8 @@ export function ImagesCard({ data, height }: { data: ImagesInfiniteModel; height
                                 readonly={!safe}
                                 className={classes.reactions}
                               />
-                              {(data.hasMeta || !image.hideMeta) && data.meta && (
-                                <ImageMetaPopover meta={data.meta}>
+                              {data.hasMeta && (
+                                <ImageMetaPopover2 imageId={data.id}>
                                   <ActionIcon variant="transparent" size="lg">
                                     <IconInfoCircle
                                       color="white"
@@ -220,7 +220,7 @@ export function ImagesCard({ data, height }: { data: ImagesInfiniteModel; height
                                       size={26}
                                     />
                                   </ActionIcon>
-                                </ImageMetaPopover>
+                                </ImageMetaPopover2>
                               )}
                             </Group>
                           )

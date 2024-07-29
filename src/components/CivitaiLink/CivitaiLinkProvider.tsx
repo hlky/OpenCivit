@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CivitaiLinkInstance } from '~/components/CivitaiLink/civitai-link-api';
 import {

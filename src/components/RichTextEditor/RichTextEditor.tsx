@@ -85,6 +85,7 @@ const useStyles = createStyles((theme) => ({
     aspectRatio: '4/3',
     maxHeight: 480,
     // Ignoring because we want to use !important, if not then it complaints about it
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pointerEvents: 'auto !important' as any,
   },
   bubbleTooltip: {
@@ -262,6 +263,7 @@ export function RichTextEditor({
             // Casting width as any to be able to use `100%`
             // since the tiptap extension API doesn't allow
             // strings for its value
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             width: '100%' as any,
             addPasteHandler: false,
             modestBranding: false,

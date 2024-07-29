@@ -23,7 +23,7 @@ export const blockedCustomModels = ['civitai:53761@285757'];
 /**
  * Computes the number of decimal points in a given input using magic math
  */
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getPrecision = (n: any) => {
   if (!isFinite(n)) return 0;
   const e = 1;

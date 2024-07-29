@@ -106,6 +106,7 @@ export const useS3Upload: UseS3Upload = (options = {}) => {
   const completeEndpoint = options.endpointComplete ?? '/api/upload/complete';
   const abortEndpoint = options.endpointComplete ?? '/api/upload/abort';
 
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const uploadToS3: UploadToS3 = async (file, type = UploadType.Default, options = {}) => {
     const filename = encodeURIComponent(file.name);
 

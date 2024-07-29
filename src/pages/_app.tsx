@@ -52,13 +52,14 @@ import { StripeSetupSuccessProvider } from '~/providers/StripeProvider';
 import { ThemeProvider } from '~/providers/ThemeProvider';
 import type { FeatureAccess } from '~/server/services/feature-flags.service';
 import { getFeatureFlags } from '~/server/services/feature-flags.service';
-import { parseCookies, ParsedCookies } from '~/shared/utils/cookies';
+import { parseCookies, ParsedCookies } from '~/shared/utils';
 import { RegisterCatchNavigation } from '~/store/catch-navigation.store';
 import { ClientHistoryStore } from '~/store/ClientHistoryStore';
 import { trpc } from '~/utils/trpc';
 import '~/styles/globals.css';
 import { FeedLayout } from '~/components/AppLayout/FeedLayout';
 import { FeatureLayout } from '~/components/AppLayout/FeatureLayout';
+import { GenerationProvider } from '~/components/ImageGeneration/GenerationProvider';
 
 dayjs.extend(duration);
 dayjs.extend(isBetween);
@@ -90,6 +91,7 @@ function MyApp(props: CustomAppProps) {
     Component,
     pageProps: { session, colorScheme, cookies, flags, ...pageProps },
   } = props;
+
   if (typeof window !== 'undefined' && !window.authChecked) {
     window.authChecked = true;
     window.isAuthed = !!session;
@@ -161,16 +163,18 @@ function MyApp(props: CustomAppProps) {
                                         >
                                           <BrowserRouterProvider>
                                             <RecaptchaWidgetProvider>
-                                              <BaseLayout>
-                                                <ChatContextProvider>
-                                                  <CustomModalsProvider>
-                                                    {getLayout(<Component {...pageProps} />)}
-                                                    <StripeSetupSuccessProvider />
-                                                    <DialogProvider />
-                                                    <RoutedDialogProvider />
-                                                  </CustomModalsProvider>
-                                                </ChatContextProvider>
-                                              </BaseLayout>
+                                              <GenerationProvider>
+                                                <BaseLayout>
+                                                  <ChatContextProvider>
+                                                    <CustomModalsProvider>
+                                                      {getLayout(<Component {...pageProps} />)}
+                                                      <StripeSetupSuccessProvider />
+                                                      <DialogProvider />
+                                                      <RoutedDialogProvider />
+                                                    </CustomModalsProvider>
+                                                  </ChatContextProvider>
+                                                </BaseLayout>
+                                              </GenerationProvider>
                                             </RecaptchaWidgetProvider>
                                           </BrowserRouterProvider>
                                         </NotificationsProvider>

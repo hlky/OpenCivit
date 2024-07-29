@@ -157,6 +157,7 @@ function StarVariant({
 
 type LightbulbColor = 'blue' | 'green' | 'red' | 'yellow';
 type Props = React.ComponentPropsWithoutRef<'svg'> & {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   color: LightbulbColor | (string & {});
   brightness?: number;
   size?: number;

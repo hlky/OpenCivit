@@ -47,6 +47,7 @@ export const useCFImageUpload: UseCFImageUpload = () => {
     setFiles([]);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const uploadToCF: UploadToCF = async (file, metadata = {}) => {
     const imageData = await getDataFromFile(file);
     if (!imageData) throw new Error();

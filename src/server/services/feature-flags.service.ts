@@ -8,7 +8,7 @@ import { getDisplayName } from '~/utils/string-helpers';
 // --------------------------
 const featureAvailability = ['dev', 'mod', 'public', 'user', 'member', 'granted'] as const;
 const featureFlags = createFeatureFlags({
-  earlyAccessModel: ['dev'],
+  earlyAccessModel: ['mod'],
   apiKeys: ['public'],
   ambientCard: ['public'],
   gallery: ['mod', 'member'],
@@ -72,6 +72,7 @@ const featureFlags = createFeatureFlags({
   membershipsV2: ['mod'],
   cosmeticShop: ['public'],
   impersonation: ['granted'],
+  donationGoals: ['mod'],
 });
 export const featureFlagKeys = Object.keys(featureFlags) as FeatureFlagKey[];
 
@@ -90,9 +91,7 @@ export const hasFeature = (key: FeatureFlagKey, user?: SessionUser) => {
   if (!roleAccess && roles.length !== 0 && !!user) {
     if (roles.includes('user')) roleAccess = true;
     else if (roles.includes('mod') && user.isModerator) roleAccess = true;
-    else if (!!user.tier && user.tier != 'free' && roles.includes('member'))
-      roleAccess = true; // Gives access to any tier
-    else if (user.tier && roles.includes(user.tier as FeatureAvailability)) roleAccess = true;
+    else if (!!user.tier && user.tier != 'free' && roles.includes('member')) roleAccess = true; // Gives access to any tier
   }
 
   return devRequirement && (grantedAccess || roleAccess);

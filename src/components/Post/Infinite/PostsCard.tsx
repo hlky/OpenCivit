@@ -16,8 +16,7 @@ import { AddArtFrameMenuItem } from '~/components/Decorations/AddArtFrameMenuIte
 import { CosmeticEntity } from '@prisma/client';
 import { useCurrentUser } from '~/hooks/useCurrentUser';
 import { useCardStyles } from '~/components/Cards/Cards.styles';
-import { VideoMetadata } from '~/server/schema/media.schema';
-import { shouldAnimateByDefault } from '~/components/EdgeMedia/EdgeMedia.util';
+import { getSkipValue, shouldAnimateByDefault } from '~/components/EdgeMedia/EdgeMedia.util';
 
 export function PostsCard({
   data: { images, id, stats, imageCount, cosmetic, user },
@@ -34,6 +33,11 @@ export function PostsCard({
   const image = images[0];
   const isOwner = currentUser?.id === user.id;
 
+  const shouldAnimate = shouldAnimateByDefault({
+    ...image,
+    forceDisabled: !currentUser?.autoplayGifs,
+  });
+
   return (
     <MasonryCard withBorder shadow="sm" p={0} height={height} ref={ref} frameDecoration={cosmetic}>
       {inView && (
@@ -41,7 +45,7 @@ export function PostsCard({
           <ImageGuard2 image={image} connectType="post" connectId={id}>
             {(safe) => (
               <>
-                {image.meta && 'civitaiResources' in (image.meta as object) && <OnsiteIndicator />}
+                {image.hasMeta && <OnsiteIndicator />}
 
                 <ImageGuard2.BlurToggle className="absolute left-2 top-2 z-10" />
                 {safe && (
@@ -76,14 +80,9 @@ export function PostsCard({
                       src={image.url}
                       className={sharedClasses.image}
                       name={image.name ?? image.id.toString()}
-                      alt={
-                        image.meta
-                          ? truncate(image.meta.prompt, {
-                              length: constants.altTruncateLength,
-                            })
-                          : image.name ?? undefined
-                      }
-                      anim={shouldAnimateByDefault(image)}
+                      alt={image.name ?? undefined}
+                      anim={shouldAnimate}
+                      skip={getSkipValue(image)}
                       type={image.type}
                       width={450}
                       placeholder="empty"
